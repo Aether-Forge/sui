@@ -1,0 +1,6 @@
+node_modules
+build
+workshop
+package-lock.json
+
+sui.log.*
