@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@mysten/sui.js": "^0.32.1"
+    "@mysten/sui.js": "^0.32.1",
+    "dotenv": "^16.0.3"
   }
 }
