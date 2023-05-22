@@ -6,6 +6,7 @@ module AetherGames::Emotes { // Alex" Emotes should be emotes by usual standards
     use sui::object::{Self, ID, UID};
     use sui::event;
     use sui::transfer;
+    use sui::transfer_policy as policy;
     use sui::tx_context::{Self, TxContext};
 
     use sui::package;
@@ -82,10 +83,16 @@ module AetherGames::Emotes { // Alex" Emotes should be emotes by usual standards
         // Commit first version of `Display` to apply changes.
         display::update_version(&mut display);
 
+        // transfer policy
+        let (policy, policy_cap) = policy::new<EMOTES>(&publisher, ctx);
+        // share the policy, as long as we have the policy_cap we can modify it later
+        transfer::public_share_object(policy);
+
         let sender = tx_context::sender(ctx);
         transfer::public_transfer(admin_key, sender);
         transfer::public_transfer(publisher, sender);
         transfer::public_transfer(display, sender);
+        transfer::public_transfer(policy_cap, sender);
     }
 
     // ------------------ CREATE DESTROY ------------------
