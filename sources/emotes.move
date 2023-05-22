@@ -91,7 +91,8 @@ module AetherGames::Emotes {
     // ------------------ CREATE DESTROY ------------------
 
     public entry fun mint(
-        // _: &AdminKey,
+        _: &AdminKey,
+        recipient: address,
         name: vector<u8>,
         description: vector<u8>,
         rarity: vector<u8>,
@@ -111,7 +112,7 @@ module AetherGames::Emotes {
 
         };
 
-        let sender = tx_context::sender(ctx);
+        // let sender = tx_context::sender(ctx);
         event::emit(MintNFTEvent {
             object_id: object::uid_to_inner(&nft.id),
             name: nft.name,
@@ -121,7 +122,7 @@ module AetherGames::Emotes {
             image_url: nft.image_url
         });
 
-        transfer::public_transfer(nft, sender);
+        transfer::public_transfer(nft, recipient); // COULD JUST ADD RECIPENT TO ARGS and directly send here
     }
 
     public entry fun create_admin_key(_: &AdminKey, recipient: address, ctx: &mut TxContext) {  //_: &AdminKey, acces control with key
