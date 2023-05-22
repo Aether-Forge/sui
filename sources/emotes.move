@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-module sui::emotes { // Alex" Emotes should be emotes by usual standards
+module aethergames::emotes { // Alex" Emotes should be emotes by usual standards
 // sui:: because the containing folder is named sui
     use sui::url::{Self, Url};
     use std::string::{utf8, Self, String};
@@ -215,7 +215,7 @@ module sui::emotes { // Alex" Emotes should be emotes by usual standards
 } 
 
 #[test_only]
-module sui::tests {
+module aethergames::tests {
 
     use std::string;
     
@@ -223,7 +223,7 @@ module sui::tests {
     use sui::transfer;
     use sui::url;
 
-    use sui::emotes::{Self, AdminKey, NFT};
+    use aethergames::emotes::{Self, AdminKey, NFT};
 
     // errors
     const EWrongName: u64 = 0;
