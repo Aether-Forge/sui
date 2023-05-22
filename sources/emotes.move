@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-module AetherGames::Emotes { // Alex" Emotes should be emotes by usual standards
+module sui::emotes { // Alex" Emotes should be emotes by usual standards
+// sui:: because the containing folder is named sui
     use sui::url::{Self, Url};
-    use std::string::{utf8, Self};
+    use std::string::{utf8, Self, String};
     use sui::object::{Self, ID, UID};
     use sui::event;
     use sui::transfer;
@@ -99,20 +100,20 @@ module AetherGames::Emotes { // Alex" Emotes should be emotes by usual standards
 
     public fun mint(
         _: &AdminKey,
-        name: vector<u8>,
-        description: vector<u8>,
-        rarity: vector<u8>,
-        reaction: vector<u8>,
+        name: String,
+        description: String,
+        rarity: String,
+        reaction: String,
         image_url: vector<u8>,
         url: vector<u8>,
         ctx: &mut TxContext
     ): NFT {
         let nft = NFT {
             id: object::new(ctx),
-            name: string::utf8(name),
-            description: string::utf8(description),
-            rarity: string::utf8(rarity),
-            reaction: string::utf8(reaction),
+            name,
+            description,
+            rarity,
+            reaction,
             image_url: url::new_unsafe_from_bytes(image_url),
             url: url::new_unsafe_from_bytes(url),
 
@@ -174,12 +175,12 @@ module AetherGames::Emotes { // Alex" Emotes should be emotes by usual standards
 
     // ------------------------- SETTERS --------------------------------
 
-    public entry fun set_name(_: &AdminKey, nft: &mut NFT, new_name: vector<u8>) {
-        nft.name = string::utf8(new_name);
+    public entry fun set_name(_: &AdminKey, nft: &mut NFT, new_name: String) {
+        nft.name = new_name;
     }
 
-    public entry fun set_description(_: &AdminKey, nft: &mut NFT, new_description: vector<u8>) {
-        nft.description = string::utf8(new_description);
+    public entry fun set_description(_: &AdminKey, nft: &mut NFT, new_description: String) {
+        nft.description = new_description;
     }
 
     public entry fun set_url(_: &AdminKey, nft: &mut NFT, new_url: vector<u8>) {
@@ -190,12 +191,12 @@ module AetherGames::Emotes { // Alex" Emotes should be emotes by usual standards
         nft.image_url = url::new_unsafe_from_bytes(new_image_url);
     }
 
-    public entry fun set_rarity(_: &AdminKey, nft: &mut NFT, new_rarity: vector<u8>) {
-        nft.rarity = string::utf8(new_rarity);
+    public entry fun set_rarity(_: &AdminKey, nft: &mut NFT, new_rarity: String) {
+        nft.rarity = new_rarity;
     }
 
-    public entry fun set_reaction(_: &AdminKey, nft: &mut NFT, new_reaction: vector<u8>) {
-        nft.reaction = string::utf8(new_reaction);
+    public entry fun set_reaction(_: &AdminKey, nft: &mut NFT, new_reaction: String) {
+        nft.reaction = new_reaction;
     }
 
     // public entry fun set_creator(_: &AdminKey, nft: &mut NFT, new_creator: address) {
@@ -205,7 +206,85 @@ module AetherGames::Emotes { // Alex" Emotes should be emotes by usual standards
 
   //TODO: TRANSFER POLIOCY <------------------------------------------------------------
 
-  
+  #[test_only]
+  public fun test_create_admin_key (ctx: &mut TxContext): AdminKey {
+    AdminKey {
+        id: object::new(ctx)
+    }
+  }
+} 
+
+#[test_only]
+module sui::tests {
+
+    use std::string;
+    
+    use sui::test_scenario as ts;
+    use sui::transfer;
+    use sui::url;
+
+    use sui::emotes::{Self, AdminKey, NFT};
+
+    // errors
+    const EWrongName: u64 = 0;
+    const EWrongDescription: u64 = 1;
+    const EWrongRarity: u64 = 2;
+    const EWrongReaction: u64 = 3;
+    const EWrongImageUrl: u64 = 4;
+    const EWrongURL: u64 = 5;
+
+    const PLAYER: address = @0x123;
+
+    #[test]
+    fun test_mint_get_set () {
+        // "globals"
+        let scenario = ts::begin(PLAYER);
+        let admin_key: AdminKey = emotes::test_create_admin_key(ts::ctx(&mut scenario));
+        {
+        let nft = emotes::mint(
+            &admin_key,
+            string::utf8(b"rofl"),
+            string::utf8(b"Roll on the floor laughing"),
+            string::utf8(b"Rare"),
+            string::utf8(b"rofl"),
+            b"https://rofl.lol",
+            b"https://aethergames.com",
+            ts::ctx(&mut scenario)
+        );
+
+        assert!(emotes::name(&nft) == &string::utf8(b"rofl"), EWrongName);
+        assert!(emotes::description(&nft) == &string::utf8(b"Roll on the floor laughing"), EWrongDescription);
+        assert!(emotes::rarity(&nft) == &string::utf8(b"Rare"), EWrongRarity);
+        assert!(emotes::reaction(&nft) == &string::utf8(b"rofl"), EWrongReaction);
+        assert!(emotes::image_url(&nft) == &url::new_unsafe_from_bytes(b"https://rofl.lol"), EWrongImageUrl);
+        assert!(emotes::url(&nft) == &url::new_unsafe_from_bytes(b"https://aethergames.com"), EWrongURL);
+
+        transfer::public_transfer(nft, PLAYER);
+        };
+
+        ts::next_tx(&mut scenario, PLAYER);
+        {
+            let nft = ts::take_from_sender<NFT>(&mut scenario);
+
+            emotes::set_name(&admin_key, &mut nft, string::utf8(b"wth"));
+            assert!(emotes::name(&nft) == &string::utf8(b"wth"), EWrongName);
+
+            ts::return_to_sender<NFT>(&scenario, nft);
+
+        };
+        ts::next_tx(&mut scenario, PLAYER);
+        {
+            let nft = ts::take_from_sender<NFT>(&scenario);
+
+            emotes::set_rarity(&admin_key, &mut nft, string::utf8(b"Common"));
+            assert!(emotes::rarity(&nft) == &string::utf8(b"Common"), EWrongName);
+
+            ts::return_to_sender<NFT>(&scenario, nft);
+        };
+
+        transfer::public_transfer(admin_key, PLAYER); // otherwise can't finish the test
+        ts::end(scenario);
+    }
 }
 
 
