@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-module AetherGames::Emotes {
+module AetherGames::Emotes { // Alex" Emotes should be emotes by usual standards
     use sui::url::{Self, Url};
     use std::string::{utf8, Self};
     use sui::object::{Self, ID, UID};
@@ -90,8 +90,8 @@ module AetherGames::Emotes {
 
     // ------------------ CREATE DESTROY ------------------
 
-    public entry fun mint(
-        // _: &AdminKey,
+    public fun mint(
+        _: &AdminKey,
         name: vector<u8>,
         description: vector<u8>,
         rarity: vector<u8>,
@@ -99,7 +99,7 @@ module AetherGames::Emotes {
         image_url: vector<u8>,
         url: vector<u8>,
         ctx: &mut TxContext
-    ) {
+    ): NFT {
         let nft = NFT {
             id: object::new(ctx),
             name: string::utf8(name),
@@ -111,7 +111,6 @@ module AetherGames::Emotes {
 
         };
 
-        let sender = tx_context::sender(ctx);
         event::emit(MintNFTEvent {
             object_id: object::uid_to_inner(&nft.id),
             name: nft.name,
@@ -121,7 +120,7 @@ module AetherGames::Emotes {
             image_url: nft.image_url
         });
 
-        transfer::public_transfer(nft, sender);
+        nft
     }
 
     public entry fun create_admin_key(_: &AdminKey, recipient: address, ctx: &mut TxContext) {  //_: &AdminKey, acces control with key
