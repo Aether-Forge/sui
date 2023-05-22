@@ -17,10 +17,10 @@ module sui::emotes { // Alex" Emotes should be emotes by usual standards
     struct NFT has key, store {
     // struct NFT<phantom T> has key, store { // if we want to make different types or something?
         id: UID,
-        name: string::String,
-        description: string::String,
-        rarity: string::String,
-        reaction: string::String,
+        name: String,
+        description: String,
+        rarity: String,
+        reaction: String,
         image_url: Url,
         url: Url,
         // TODO: allow custom attributes only for other assets
@@ -145,11 +145,11 @@ module sui::emotes { // Alex" Emotes should be emotes by usual standards
 
     // ------------------ GETTERS ------------------
 
-    public fun name(nft: &NFT): &string::String {
+    public fun name(nft: &NFT): &String {
         &nft.name
     }
 
-    public fun description(nft: &NFT): &string::String {
+    public fun description(nft: &NFT): &String {
         &nft.description
     }
 
@@ -161,11 +161,11 @@ module sui::emotes { // Alex" Emotes should be emotes by usual standards
         &nft.image_url
     }
 
-    public fun rarity(nft: &NFT): &string::String {
+    public fun rarity(nft: &NFT): &String {
         &nft.rarity
     }
 
-    public fun reaction(nft: &NFT): &string::String {
+    public fun reaction(nft: &NFT): &String {
         &nft.reaction
     }
 
