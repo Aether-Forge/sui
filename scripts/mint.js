@@ -1,8 +1,8 @@
 const sui = require("@mysten/sui.js");
 require("dotenv").config();
 
-const pkg = "0x057d2c6f7910f8a415b57d4bd4403edaf88f1fd7da4e636c48fef7173e4c431e";
-const adminKey = "0x40a66d08de6b4d01dd92672732e1f7084c0e4503c0e8418a0cbbf2ee08b3344e";
+const pkg = "0xce247eb7810234a1f3a9b491409dba60712650272f98ad6a29d45b6445426519";
+const adminKey = "0xf506ad3eb464c1bef85dee740a543f6b1774b71c5b706ca5fedae855d935d90b";
 
 const getSignerAddressExample = () => {
   const privKey = sui.fromB64(process.env.PRIVATE_KEY);
@@ -23,7 +23,7 @@ const mint = async () => {
     const tx = new sui.TransactionBlock();
 
     const nft = tx.moveCall({
-        target: `${pkg}::Emotes::mint`,
+        target: `${pkg}::emotes::mint`,
         typeArguments: [],
         arguments: [
             tx.object(adminKey),
@@ -54,7 +54,7 @@ const burn = async (emoteId) => {
     const tx = new sui.TransactionBlock();
 
     tx.moveCall({
-        target: `${pkg}::Emotes::burn`,
+        target: `${pkg}::emotes::burn`,
         typeArguments: [],
         arguments: [tx.object(emoteId)]
     });
