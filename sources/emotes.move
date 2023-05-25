@@ -18,7 +18,8 @@ module aethergames::emotes { // Alex" Emotes should be emotes by usual standards
     // struct Emote<phantom T> has key, store { // if we want to make different types or something?
         id: UID,
         name: String,
-        description: String,
+        igId: String,
+        // description: String,
         rarity: String,
         reaction: String,
         image_url: Url,
@@ -31,7 +32,8 @@ module aethergames::emotes { // Alex" Emotes should be emotes by usual standards
     struct MintEmoteEvent has copy, drop {
         object_id: ID,
         name: string::String,
-        description: string::String,
+        igId: string::String,
+        // description: string::String,
         rarity: string::String,
         reaction: string::String,
         image_url: Url,
@@ -54,7 +56,7 @@ module aethergames::emotes { // Alex" Emotes should be emotes by usual standards
             utf8(b"image_url"), //TODO: maybe just image?
             utf8(b"rarity"),
             utf8(b"reaction"),
-            utf8(b"description"),
+            // utf8(b"igId"),
             utf8(b"project_url"),
             utf8(b"creator")
         ];
@@ -64,7 +66,7 @@ module aethergames::emotes { // Alex" Emotes should be emotes by usual standards
             utf8(b"{image_url}"),
             utf8(b"{rarity}"),
             utf8(b"{reaction}"),
-            utf8(b"{description}"),
+            // utf8(b"{igId}"),
             utf8(b"https://aethergames.io"),
             utf8(b"Aether Games")
         ];
@@ -101,7 +103,7 @@ module aethergames::emotes { // Alex" Emotes should be emotes by usual standards
     public fun mint(
         _: &AdminKey,
         name: String,
-        description: String,
+        igId: String,
         rarity: String,
         reaction: String,
         image_url: vector<u8>,
@@ -111,7 +113,7 @@ module aethergames::emotes { // Alex" Emotes should be emotes by usual standards
         let emote = Emote {
             id: object::new(ctx),
             name,
-            description,
+            igId,
             rarity,
             reaction,
             image_url: url::new_unsafe_from_bytes(image_url),
@@ -122,7 +124,7 @@ module aethergames::emotes { // Alex" Emotes should be emotes by usual standards
         event::emit(MintEmoteEvent {
             object_id: object::uid_to_inner(&emote.id),
             name: emote.name,
-            description: emote.description,
+            igId: emote.igId,
             rarity: emote.rarity,
             reaction: emote.reaction,
             image_url: emote.image_url
@@ -139,7 +141,7 @@ module aethergames::emotes { // Alex" Emotes should be emotes by usual standards
     }
 
     public entry fun burn(emote: Emote) {
-        let Emote { id, name: _, description: _, reaction: _, rarity: _, image_url: _, url: _ } = emote;
+        let Emote { id, name: _, igId: _, reaction: _, rarity: _, image_url: _, url: _ } = emote;
         object::delete(id);
     }
 
@@ -149,8 +151,8 @@ module aethergames::emotes { // Alex" Emotes should be emotes by usual standards
         &emote.name
     }
 
-    public fun description(emote: &Emote): &String {
-        &emote.description
+    public fun igId(emote: &Emote): &String {
+        &emote.igId
     }
 
     public fun url(emote: &Emote): &Url {
@@ -179,8 +181,8 @@ module aethergames::emotes { // Alex" Emotes should be emotes by usual standards
         emote.name = new_name;
     }
 
-    public entry fun set_description(_: &AdminKey, emote: &mut Emote, new_description: String) {
-        emote.description = new_description;
+    public entry fun set_igId(_: &AdminKey, emote: &mut Emote, new_igId: String) {
+        emote.igId = new_igId;
     }
 
     public entry fun set_url(_: &AdminKey, emote: &mut Emote, new_url: vector<u8>) {
@@ -227,7 +229,7 @@ module aethergames::tests {
 
     // errors
     const EWrongName: u64 = 0;
-    const EWrongDescription: u64 = 1;
+    const EWrongIgId: u64 = 1;
     const EWrongRarity: u64 = 2;
     const EWrongReaction: u64 = 3;
     const EWrongImageUrl: u64 = 4;
@@ -244,7 +246,7 @@ module aethergames::tests {
         let emote = emotes::mint(
             &admin_key,
             string::utf8(b"rofl"),
-            string::utf8(b"Roll on the floor laughing"),
+            string::utf8(b"rofl_rofl"),
             string::utf8(b"Rare"),
             string::utf8(b"rofl"),
             b"https://rofl.lol",
@@ -253,7 +255,7 @@ module aethergames::tests {
         );
 
         assert!(emotes::name(&emote) == &string::utf8(b"rofl"), EWrongName);
-        assert!(emotes::description(&emote) == &string::utf8(b"Roll on the floor laughing"), EWrongDescription);
+        assert!(emotes::igId(&emote) == &string::utf8(b"rofl_rofl"), EWrongIgId);
         assert!(emotes::rarity(&emote) == &string::utf8(b"Rare"), EWrongRarity);
         assert!(emotes::reaction(&emote) == &string::utf8(b"rofl"), EWrongReaction);
         assert!(emotes::image_url(&emote) == &url::new_unsafe_from_bytes(b"https://rofl.lol"), EWrongImageUrl);
